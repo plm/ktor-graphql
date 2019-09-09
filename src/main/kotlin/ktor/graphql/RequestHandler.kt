@@ -244,10 +244,14 @@ internal class RequestHandler(
 fun toInvalidSyntaxError(exception: Exception): InvalidSyntaxError {
     var msg = exception.message
     var sourceLocation: SourceLocation? = null
-    if (exception.cause is RecognitionException) {
-        val recognitionException = exception.cause as RecognitionException
-        msg = recognitionException.message
-        sourceLocation = SourceLocation(recognitionException.offendingToken.line, recognitionException.offendingToken.charPositionInLine)
+    val cause = exception.cause
+    when (cause) {
+        is RecognitionException -> {
+            if (cause.message != null) {
+                msg = cause.message
+            }
+            sourceLocation = SourceLocation(cause.offendingToken.line, cause.offendingToken.charPositionInLine)
+        }
     }
     return InvalidSyntaxError(sourceLocation, msg)
 }
